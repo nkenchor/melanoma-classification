@@ -1,0 +1,12 @@
+function display_accuracy_barchart(accuracies, segmentationMethods)
+    % Create a figure for visualization of accuracies
+    figure('Visualizing accuracies for the different segmentation methods', 'off');]
+    sgtitle('Results for SVM Classification using different segmentation methods');
+    bar(accuracies);
+    xlabel('Segmentation Methods');
+    ylabel('Accuracy');
+    title('Accuracy of Different Segmentation Methods');
+    xticklabels(segmentationMethods);
+    xtickangle(45); % angle the labels for better visualization
+    grid on;
+end

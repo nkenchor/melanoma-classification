@@ -1,0 +1,33 @@
+function plot_results(features, cm, order, accuracy, precision, recall, f1, specificity)
+    figure('Name', 'Grand Results', 'NumberTitle', 'off', 'Position', [100, 100, 1200, 600]);
+
+    % 1. Feature Histograms for first 5 images
+    for i = 1:min(5, size(features, 2))
+        subplot(2, 4, i);
+        imhist(features(:,i)); % Assuming grayscale features
+        title(['Hist for Image ', num2str(i)]);
+    end
+
+    % 2. Confusion Matrix
+    subplot(2, 4, 6);
+    confusionchart(cm, order);
+    title('Confusion Matrix of SVM Classification');
+
+    % 3. SVM Performance Metrics
+    metrics = [accuracy, precision, recall, f1, specificity];
+    subplot(2, 4, 7);
+    bar(metrics * 100); % Assuming metrics are in range [0,1]
+    ylim([0 100]);
+    set(gca, 'XTickLabel', {'Accuracy', 'Precision', 'Recall', 'F1', 'Specificity'});
+    ylabel('Percentage');
+    title('SVM Performance Metrics');
+    grid on;
+
+    % 4. ROC Curve (optional: needs scores from your SVM model)
+    % subplot(2, 4, 8);
+    % Here you'd plot the ROC curve if it's applicable
+
+    % Adjust spacing
+    set(gcf, 'Color', 'w'); % Set figure background to white
+   
+end

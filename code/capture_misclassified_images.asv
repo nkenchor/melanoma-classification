@@ -1,0 +1,42 @@
+function misclassifiedInfo = capture_misclassified_images(bestSVMs, featureSets, groundTruthLabels, lesionImages, segmentationMethods)
+    expectedFeatures = 768;
+    misclassifiedInfo = struct('Image', {}, 'TrueLabel', {}, 'PredictedLabel', {}, 'SegmentationMethod', {});
+
+    for idx = 1:length(segmentationMethods)
+        
+        if size(bestSVMs{idx}.Beta, 1) ~= expectedFeatures
+    disp(['Incompatible SVM model for method ', segmentationMethods{idx}, '. Model expects ', num2str(size(bestSVMs{idx}.Beta, 1)), ' features but got ', num2str(expectedFeatures), '. Skipping...']);
+    continue;
+end
+        
+        [numSamples, numFeatures] = size(featureSets{idx});
+        disp(['Number of Samples: ', num2str(numSamples), ', Number of Features: ', num2str(numFeatures)]);
+
+        % Predict labels using the SVM
+        predictedLabels = predict(bestSVMs{idx}, featureSets{idx});
+
+        % Convert to numeric array if they are cell arrays
+        if iscell(predictedLabels)
+            predictedLabels = cell2mat(predictedLabels);
+        end
+        if iscell(groundTruthLabels)
+            groundTruthLabels = cell2mat(groundTruthLabels);
+        end
+
+        % Find misclassified indices
+        misclassifiedIndices = find(predictedLabels ~= groundTruthLabels);
+
+        % Store misclassified images and details
+        for misIdx = misclassifiedIndices'
+            misInfo.Image = lesionImages{misIdx};
+            misInfo.TrueLabel = groundTruthLabels(misIdx);
+            misInfo.PredictedLabel = predictedLabels(misIdx);
+            misInfo.SegmentationMethod = segmentationMethods{idx};
+            misclassifiedInfo(end+1) = misInfo;
+        end
+    end
+
+    if isempty(misclassifiedInfo)
+        disp('No misclassified images found.');
+    end
+end

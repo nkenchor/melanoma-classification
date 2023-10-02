@@ -1,0 +1,42 @@
+function [accuracy, precision, recall, f1, specificity] = svm_evaluation(svmModel, features, groundtruth)
+    % Assuming you've loaded your 'features' and 'groundtruth' in the workspace
+
+    % Splitting the data (80% training, 20% validation). 
+    numData = size(features, 2);
+    numTest = floor(0.2 * numData);  % Taking 20% for testing directly
+    
+    randIndices = randperm(numData);
+    testInd = randIndices(1:numTest);
+
+    testFeatures = features(:, testInd);
+    testLabels = groundtruth(testInd);
+
+    % Predict on the test set
+    testPredictions = predict(svmModel, testFeatures');
+
+    % Compute confusion matrix for test set
+    testCM = confusionmat(testLabels, testPredictions);
+    disp('Test Confusion Matrix:');
+    disp(testCM);
+
+    % Compute accuracy
+    accuracy = sum(diag(testCM)) / sum(testCM(:));
+    fprintf('Test Accuracy: %.2f%%\n', accuracy * 100);
+
+    % Assuming a binary classification for now (2 classes). 
+    TP = testCM(1,1); 
+    FP = testCM(1,2);
+    FN = testCM(2,1);
+    TN = testCM(2,2);
+
+    % Precision, Recall, F1-score, and specificity
+    precision = TP / (TP + FP);
+    recall = TP / (TP + FN);
+    f1 = 2 * (precision * recall) / (precision + recall);
+    specificity = TN / (TN + FP);
+
+    fprintf('Test Precision: %.2f%%\n', precision * 100);
+    fprintf('Test Recall: %.2f%%\n', recall * 100);
+    fprintf('Test F1-Score: %.2f%%\n', f1 * 100);
+    fprintf('Test Specificity: %.2f%%\n', specificity * 100);
+end

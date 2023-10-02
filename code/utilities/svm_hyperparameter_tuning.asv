@@ -1,0 +1,29 @@
+function [bestC, bestKernel] = svm_hyperparameter_tuning(trainFeatures, trainLabels)
+
+    % List of hyperparameters to try out
+    C_values = [0.1, 1, 10, 100];
+    kernel_types = {'linear', 'polynomial', 'rbf', 'sigmoid'};
+
+    bestAccuracy = 0; % initialize with a low value
+    bestC = [];
+    bestKernel = [];
+
+    % Use cross-validation for each combination of hyperparameters
+    for C = C_values
+        for kernel = kernel_types
+            % Train an SVM with the current set of hyperparameters
+            svmModel = fitcsvm(trainFeatures', trainLabels, 'KernelFunction', kernel{1}, 'BoxConstraint', C);
+            cvs = crossval(svmModel);
+            % Obtain cross-validation loss (misclassification rate)
+            loss = kfoldLoss(cvs);
+            accuracy = 1 - loss;
+            % Update best hyperparameters if the accuracy is improved
+            if accuracy > bestAccuracy
+                bestAccuracy = accuracy;
+                bestC = C;
+                bestKernel = kernel{1};
+            end
+        end
+    end
+
+end
